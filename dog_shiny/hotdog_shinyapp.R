@@ -3,6 +3,7 @@
 library(shiny)
 library(tidyverse)
 library(readxl)
+library(DT)
 
 
 dog <- read_excel("../data/hotdog_tracker.xlsx") %>% 
@@ -60,7 +61,15 @@ ui <- fluidPage(
     .nav-tabs > li.active > a:focus,
     .nav-tabs > li.active > a:hover {
       color: red !important;
-}
+    }
+    /* wraps the entire DataTable */
+    .dataTables_wrapper {
+      background-color: rgba(255, 255, 0, 0.6) !important;
+      border: 3px dashed red !important;
+      padding: 15px;
+      border-radius: 4px;
+    }
+
     
   ")),
 
@@ -99,7 +108,10 @@ ui <- fluidPage(
         ),
         tabPanel("Dog Time",
                  plotOutput(outputId = "time_plt")
-        )
+        ),
+        tabPanel("Dog Data",
+                 DTOutput(outputId = "dog_data")
+                 )
         
       )
       
@@ -228,6 +240,18 @@ server <- function(input, output, session) {
     
   })
   
+  output$dog_data <- renderDT({
+    
+    filtered() %>%
+      select(-other_notes) %>%
+      datatable(options = list(pageLength = 15, scrollX = TRUE), rownames = FALSE) %>%
+      formatStyle(
+        columns = names(dog %>% select(-other_notes)),
+        color = "red",
+        fontFamily = "Comic Sans MS"
+      )
+    
+  })
    
 }
 
